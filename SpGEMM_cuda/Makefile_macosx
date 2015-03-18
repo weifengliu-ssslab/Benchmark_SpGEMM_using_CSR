@@ -1,0 +1,17 @@
+#compilers
+CC=clang++
+
+#includes
+CUDA_INSTALL_PATH = /Developer/NVIDIA/CUDA-6.0
+INCLUDES = -I$(CUDA_INSTALL_PATH)/include -I$(CUDA_INSTALL_PATH)/samples/common/inc
+
+#libs
+CUDA_LIBS = -L$(CUDA_INSTALL_PATH)/lib -lcudart
+CLANG_LIBS = -stdlib=libstdc++ -lstdc++
+LIBS = $(CUDA_LIBS) $(CLANG_LIBS)
+
+all: 
+	nvcc -O3 -m64 -arch=sm_30 -c bhsparse_cuda.cu -o bhsparse_cuda.o $(INCLUDES)
+	nvcc -O3 -m64 -arch=sm_30 -c ref.cu -o ref.o $(INCLUDES)
+	$(CC) -m64 -O3 main.cpp bhsparse.cpp bhsparse_cuda.o ref.o -o spgemm $(INCLUDES) $(LIBS)
+
