@@ -6,15 +6,11 @@
 This is the source code of two papers:
 
 (1) Weifeng Liu and Brian Vinter, "An Efficient GPU General Sparse Matrix-Matrix Multiplication for Irregular Data," 
-Parallel and Distributed Processing Symposium, 2014 IEEE 28th International (IPDPS '14), pp.370-381, 19-23 May 2014.
-
-The paper is downloadable at <a href="http://dx.doi.org/10.1109/IPDPS.2014.47">IEEE Xplore</a>.
+Parallel and Distributed Processing Symposium, 2014 IEEE 28th International (IPDPS '14), pp.370-381, 19-23 May 2014. <a href="http://dx.doi.org/10.1109/IPDPS.2014.47">PDF at IEEE Xplore</a>.
 
 A preprint version and its IPDPS '14 slides can be found inside the repository.
 
-(2) Weifeng Liu and Brian Vinter, "A Framework for General Sparse Matrix-Matrix Multiplication on GPUs and Heterogeneous Processors," Preprint submitted to Journal of Parallel and Distributed Computing (JPDC), 2015.
-
-The preprint paper is downloadable at <a href="http://arxiv.org/abs/1504.05022">arXiv</a>.
+(2) Weifeng Liu and Brian Vinter, "A Framework for General Sparse Matrix-Matrix Multiplication on GPUs and Heterogeneous Processors," Preprint submitted to Journal of Parallel and Distributed Computing (JPDC), 2015. <a href="http://arxiv.org/abs/1504.05022">PDF at arXiv</a>.
 
 Contact: Weifeng Liu (weifeng.liu _at_ nbi.ku.dk) and/or Brian Vinter (vinter _at_ nbi.ku.dk).
 
