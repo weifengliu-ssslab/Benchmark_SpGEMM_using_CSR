@@ -9,17 +9,33 @@
 // for details. >
 //////////////////////////////////////////////////////////////////////////
 
-#include "ref.h"
+#ifndef REF_SPGEMM_H
+#define REF_SPGEMM_H
 
+#include <cusp/csr_matrix.h>
 #include <cusp/multiply.h>
 #include <cusp/detail/host/reference/csr.h>
 
-ref::ref()
+#include "common.h"
+
+typedef cusp::csr_matrix<index_type,value_type,cusp::host_memory>   CSRHost;
+typedef cusp::coo_matrix<index_type,value_type,cusp::device_memory> COODevice;
+
+class ref_spgemm
+{
+public:
+    ref_spgemm();
+    template<class I, class T>
+    void csr_sort_indices(const I n_row, const I Ap[], I Aj[], T Ax[]);
+    void compData(CSRHost A, CSRHost B, int m, int nnzC, index_type *csrRowPtrC, index_type *csrColIndC, value_type *csrValC);
+};
+
+ref_spgemm::ref_spgemm()
 {
 }
 
 template<class I, class T>
-void ref::csr_sort_indices(const I n_row,
+void ref_spgemm::csr_sort_indices(const I n_row,
                       const I Ap[],
                             I Aj[],
                             T Ax[])
@@ -46,7 +62,7 @@ void ref::csr_sort_indices(const I n_row,
 }
 
 
-void ref::compData(CSRHost A, CSRHost B, int m, int nnzC, index_type *csrRowPtrC, index_type *csrColIndC, value_type *csrValC)
+void ref_spgemm::compData(CSRHost A, CSRHost B, int m, int nnzC, index_type *csrRowPtrC, index_type *csrColIndC, value_type *csrValC)
 {
     cout << endl << "Checking correctness ..." << endl;
 
@@ -57,12 +73,6 @@ void ref::compData(CSRHost A, CSRHost B, int m, int nnzC, index_type *csrRowPtrC
     cusp::multiply(dAcoo, dBcoo, dCcoo);
 
     CSRHost C = dCcoo;
-
-    // check it on CPU, but CUSP v0.4.0's CPU SpGEMM seems incorrect
-    //    cusp::coo_matrix<index_type, value_type, cusp::host_memory> Ccoo;
-    //    Ccoo = C;
-    //    Ccoo.sort_by_row_and_column();
-    //    C = Ccoo;
 
     csr_sort_indices<index_type, value_type>(m, &C.row_offsets[0], &C.column_indices[0], &C.values[0]);
 
@@ -115,3 +125,5 @@ void ref::compData(CSRHost A, CSRHost B, int m, int nnzC, index_type *csrRowPtrC
     else
         cout << "ColIndC/csrValC NO PASS! #err = " << err_count << endl;
 }
+
+#endif // REF_SPGEMM_H

@@ -1,8 +1,8 @@
 #compilers
-CC=g++
+CC=nvcc
 
 #includes
-CUDA_INSTALL_PATH = /usr/local/cuda-6.5
+CUDA_INSTALL_PATH = /usr/local/cuda-7.5
 INCLUDES = -I$(CUDA_INSTALL_PATH)/include -I$(CUDA_INSTALL_PATH)/samples/common/inc
 
 #libs
@@ -13,7 +13,5 @@ LIBS = $(CUDA_LIBS)
 #-gencode=arch=compute_52,code=sm_52 -gencode=arch=compute_52,code=compute_52
 
 all: 
-	nvcc -O3 -m64 -arch=sm_35 -c bhsparse_cuda.cu -o bhsparse_cuda.o $(INCLUDES)
-	nvcc -O3 -m64 -arch=sm_35 -c ref.cu -o ref.o $(INCLUDES)
-	$(CC) -m64 -O3 main.cpp bhsparse.cpp bhsparse_cuda.o ref.o -o spgemm $(INCLUDES) $(LIBS)
+	nvcc -O3 -m64 -gencode=arch=compute_52,code=sm_52 -gencode=arch=compute_52,code=compute_52 main.cu -o spgemm $(INCLUDES) $(LIBS)
 

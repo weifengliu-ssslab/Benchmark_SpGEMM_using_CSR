@@ -16,35 +16,36 @@
 
 #include "common.h"
 #include "bhsparse.h"
-#include "ref.h"
+#include "ref_spgemm.h"
 
 typedef cusp::csr_matrix<index_type,value_type,cusp::host_memory>   CSRHost;
 
-int benchmark_spgemm(char *dataset_name,
-                   bool *platforms)
+int benchmark_spgemm(char *dataset_name1,
+                     char *dataset_name2,
+                     bool *platforms)
 {
     CSRHost A;
     CSRHost B;
 
-    if (strcmp(dataset_name, "1") == 0)
+    if (strcmp(dataset_name1, "1") == 0)
     {
         cusp::gallery::poisson5pt(A, 256, 256);
         cusp::gallery::poisson5pt(B, 256, 256);
         cout << "2D FD, 5-point. ";
     }
-    else if (strcmp(dataset_name, "2") == 0)
+    else if (strcmp(dataset_name1, "2") == 0)
     {
         cusp::gallery::poisson9pt(A, 256, 256);
         cusp::gallery::poisson9pt(B, 256, 256);
         cout << "2D FE, 9-point. ";
     }
-    else if (strcmp(dataset_name, "3") == 0)
+    else if (strcmp(dataset_name1, "3") == 0)
     {
         cusp::gallery::poisson7pt(A, 51, 51, 51);
         cusp::gallery::poisson7pt(B, 51, 51, 51);
         cout << "3D FD, 7-point. ";
     }
-    else if (strcmp(dataset_name, "4") == 0)
+    else if (strcmp(dataset_name1, "4") == 0)
     {
         cusp::gallery::poisson27pt(A, 51, 51, 51);
         cusp::gallery::poisson27pt(B, 51, 51, 51);
@@ -52,13 +53,17 @@ int benchmark_spgemm(char *dataset_name,
     }
     else
     {
-        cout << dataset_name;
-        cusp::io::read_matrix_market_file(A, dataset_name);
+        cout << " A: " << dataset_name1 << endl;
+        cusp::io::read_matrix_market_file(A, dataset_name1);
 
-        ref *ref_comp = new ref();
+        cout << " B: " << dataset_name2 << endl;
+        cusp::io::read_matrix_market_file(B, dataset_name2);
+
+        ref_spgemm *ref_comp = new ref_spgemm();
         ref_comp->csr_sort_indices<index_type, value_type>(A.num_rows, &A.row_offsets[0], &A.column_indices[0], &A.values[0]);
+        ref_comp->csr_sort_indices<index_type, value_type>(B.num_rows, &B.row_offsets[0], &B.column_indices[0], &B.values[0]);
 
-        B = A;
+        //B = A;
     }
 
     int m = A.num_rows;
@@ -88,7 +93,8 @@ int benchmark_spgemm(char *dataset_name,
         csrValB[i] = ( rand() % 9 ) + 1;
     }
 
-    cout << " ( n = " << m << ", nnz = " << nnzA << " ) " << endl;
+    cout << " A: ( " << m << " by " << k << ", nnz = " << nnzA << " ) " << endl;
+    cout << " B: ( " << k << " by " << n << ", nnz = " << nnzB << " ) " << endl;
 
     // C
     index_type *csrRowPtrC = (index_type *)  malloc((m+1) * sizeof(index_type));
@@ -129,7 +135,7 @@ int benchmark_spgemm(char *dataset_name,
     if(err != BHSPARSE_SUCCESS) return err;
 
     // evaluate C
-    ref *ref_comp = new ref();
+    ref_spgemm *ref_comp = new ref_spgemm();
     ref_comp->compData(A, B, m, nnzC, csrRowPtrC, csrColIndC, csrValC);
 
     // free C
@@ -229,7 +235,7 @@ int test_small_spgemm(bool *platforms)
     if(err != BHSPARSE_SUCCESS) return err;
 
     // evaluate C
-    ref *ref_comp = new ref();
+    ref_spgemm *ref_comp = new ref_spgemm();
     ref_comp->compData(A, B, m, nnzC, csrRowPtrC, csrColIndC, csrValC);
 
     free(csrColIndC);
@@ -248,7 +254,8 @@ int main(int argc, char ** argv)
     memset(platforms, 0, sizeof(bool) * NUM_PLATFORMS);
     int argi = 1;
     int task_id = 0;
-    char *dataset_name;
+    char *dataset_name1;
+    char *dataset_name2;
 
     // read method
     if(argc > argi)
@@ -271,8 +278,18 @@ int main(int argc, char ** argv)
             task_id = 0;
             if(argc > argi)
             {
-                dataset_name = argv[argi];
+                dataset_name1 = argv[argi];
                 argi++;
+            }
+
+            if(argc > argi)
+            {
+                dataset_name2 = argv[argi];
+                argi++;
+            }
+            else
+            {
+                dataset_name2 = dataset_name1;
             }
         }
     }
@@ -282,10 +299,10 @@ int main(int argc, char ** argv)
     int err = 0;
     if (task_id == 0)
     {
-        if (strcmp(dataset_name, "0") == 0)
+        if (strcmp(dataset_name1, "0") == 0)
             err = test_small_spgemm(platforms);
         else
-            err = benchmark_spgemm(dataset_name, platforms);
+            err = benchmark_spgemm(dataset_name1, dataset_name2, platforms);
     }
 
     if (err != BHSPARSE_SUCCESS) cout << "Found an err, code = " << err << endl;
