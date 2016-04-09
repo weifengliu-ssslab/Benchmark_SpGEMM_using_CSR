@@ -97,7 +97,7 @@ int bhsparse_cuda::initPlatform()
 {
     _profiling = false;
 
-    int device_id = 1;
+    int device_id = 0;
     cudaSetDevice(device_id);
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, device_id);
