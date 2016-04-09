@@ -17,6 +17,8 @@ Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter 
 
 Now this work has two separate branches: CUDA and OpenCL. The CUDA version requires an nVidia GPU, CUDA SDK and CUSP library. The OpenCL version only needs an OpenCL-enabled GPU and OpenCL compiling environment. 
 
+Update (April 2016): fixed a bug of processing long rows.
+
 <br><hr>
 <h3>Preparation</h3>
 
